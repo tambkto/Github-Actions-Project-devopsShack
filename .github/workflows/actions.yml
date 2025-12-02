@@ -46,3 +46,14 @@ jobs:
 
       - name: Run Gitleaks Scan
         run: gitleaks detect source . -r gitleaks-report.json -f json
+
+  Run-Unit-Tests:
+    runs-on: self-hosted
+    needs: Run-Trivy-Scan
+
+    steps:
+      - name: checkout the code
+        uses: actions/checkout@v4
+
+      - name: Run the unit tests
+        run: mvn test
