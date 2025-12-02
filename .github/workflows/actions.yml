@@ -7,7 +7,7 @@ on:
 
 jobs:
   compile-code:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: checkout the code
@@ -23,7 +23,8 @@ jobs:
         run: mvn compile
 
   Run-Trivy-Scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    needs: compile-code
 
     steps:
       - name: checkout the code
