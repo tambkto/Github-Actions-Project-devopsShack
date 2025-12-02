@@ -104,6 +104,7 @@ jobs:
 
   build-and-push-to-dockerhub:
     runs-on: self-hosted
+    needs: Build-application
     steps:
        - uses: actions/download-artifact@v5
          with:
