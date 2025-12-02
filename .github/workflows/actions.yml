@@ -1,23 +1,47 @@
 name: Actions for CI/CD Pipeline
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
-    compile-code:
-        runs-on: self-hosted
+  compile-code:
+    runs-on: self-hosted
 
-        steps:
-        - name: checkout the code    
-          uses: actions/checkout@v4
+    steps:
+      - name: checkout the code
+        uses: actions/checkout@v4
 
-        - name: sets up JDK 21
-          uses: actions/setup-java@v5
-          with:
-            distribution: 'temurin'
-            java-version: '21'
+      - name: sets up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
 
-        - name: compile the code
-          run: mvn compile
+      - name: compile the code
+        run: mvn compile
+
+  Run-Trivy-Scan:
+    runs-on: self-hosted
+
+    steps:
+      - name: checkout the code
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install wget gnupg
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt update
+          sudo apt install trivy -y
+
+      - name: Run Trivy scan for source code
+        run: trivy fs --format json -o fs-report.json .
+
+      - name: Install Gitleaks
+        run: sudo apt install gitleaks -y
+
+      - name: Run Gitleaks Scan
+        run: gitleaks detect source . -r gitleaks-report.json -f json
