@@ -108,6 +108,7 @@ jobs:
     steps:
        - uses: actions/download-artifact@v5
          with:
+          name: application-artifact  
           path: app
 
        - name: Login to Docker Hub
