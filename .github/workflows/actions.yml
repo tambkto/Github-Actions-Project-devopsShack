@@ -103,6 +103,7 @@ jobs:
          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
   build-and-push-to-dockerhub:
+
     runs-on: self-hosted
     needs: Build-application
     steps:
@@ -133,3 +134,18 @@ jobs:
           context: .
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest
+
+  deplouy-to-ec2:
+     runs-on: self-hosted
+     needs: build-and-push-to-dockerhub
+     steps:
+      - name: checkout the code
+        uses: actions/checkout@v4
+
+      - name: deploy-using-ssm
+        uses: aws-actions/aws-ssm-run-command@v1
+        with:
+          document-name: AWS-RunShellScript
+          instance-ids: ${{ vars.EC2_INSTANCE_ID }}
+          parameters: commands=["docker pull ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest","docker run -d --name githubactionsapp -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest"]
+        
