@@ -148,14 +148,16 @@ jobs:
          role-to-assume: arn:aws:iam::504649076991:role/github-actions-poc-role
          aws-region: us-west-2
 
-      - name: Deploy using AWS CLI + SSM
+      - name: Deploy using SSM
         run: |
-          aws ssm send-command \
-            --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
-            --document-name "AWS-RunShellScript" \
-            --comment "GitHub Actions deploy" \
-            --parameters 'commands=["docker pull '"${{ vars.DOCKERHUB_USERNAME }}"'/secondprojectgithubactions:latest","docker stop githubactionsapp || true"," "docker run -d --name bankapp -p 8080:8080 \
-                -e DB_URL='\"${{ vars.DB_URL }}\"' \
-                -e DB_USER='\"${{ vars.DB_USER }}\"' \
-                -e DB_PASS='\"${{ secrets.DB_PASS }}\"' \
-                '"${{ vars.DOCKERHUB_USERNAME }}"'/secondprojectgithubactions:latest"]'
+         aws ssm send-command \
+         --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
+         --document-name "AWS-RunShellScript" \
+         --comment "GitHub Deployment" \
+         --parameters commands="[
+         \"docker pull ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest\",
+         \"docker stop bankapp || true\",
+         \"docker rm bankapp || true\",
+         \"docker run -d --name bankapp -p 8080:8080 -e DB_URL='${{ vars.DB_URL }}' -e DB_USER='${{ vars.DB_USER }}' -e DB_PASS='${{ secrets.DB_PASS }}' ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest\"
+         ]"
+
