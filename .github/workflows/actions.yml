@@ -132,16 +132,25 @@ jobs:
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest
 
-  deplouy-to-ec2:
+  deploy-to-ec2:
     runs-on: ubuntu-latest
     needs: build-and-push-to-dockerhub
     steps:
       - name: checkout the code
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+         role-to-assume: arn:aws:iam::504649076991:role/github-actions-poc-role
+         aws-region: us-west-2
+
       - name: deploy-using-ssm
-        uses: aws-actions/aws-ssm-run-command@v1
+        uses: aws-actions/aws-ssm-send-command@v1
         with:
           document-name: AWS-RunShellScript
           instance-ids: ${{ vars.EC2_INSTANCE_ID }}
-          parameters: commands=["docker pull ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest","docker run -d --name githubactionsapp -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest"]
+          parameters: |
+           commands=
+            docker pull ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest
+            docker run -d --name githubactionsapp -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest
