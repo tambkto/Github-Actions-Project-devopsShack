@@ -109,7 +109,7 @@ jobs:
 
        - name: checkout the code
          uses: actions/checkout@v4
-         
+
        - uses: actions/download-artifact@v5
          with:
           name: app-jar  
@@ -130,5 +130,6 @@ jobs:
        - name: Build and push
          uses: docker/build-push-action@v6
          with:
+          context: .
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/secondprojectgithubactions:latest
