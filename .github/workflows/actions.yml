@@ -146,7 +146,7 @@ jobs:
          aws-region: us-west-2
 
       - name: deploy-using-ssm
-        uses: aws-actions/aws-ssm-send-command@v1
+        uses: aws-actions/amazon-ssm-send-command@v1
         with:
           document-name: AWS-RunShellScript
           instance-ids: ${{ vars.EC2_INSTANCE_ID }}
