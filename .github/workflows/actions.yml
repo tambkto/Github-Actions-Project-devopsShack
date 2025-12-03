@@ -84,7 +84,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-         name: application-artifact
+         name: app-jar
          path: target/*.jar
          
       - name: SonarQube Scan
@@ -108,7 +108,7 @@ jobs:
     steps:
        - uses: actions/download-artifact@v5
          with:
-          name: application-artifact  
+          name: app-jar  
           path: app
 
        - name: Login to Docker Hub
